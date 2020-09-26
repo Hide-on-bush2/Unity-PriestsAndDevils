@@ -15,7 +15,7 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
     public void LoadResources()
     {
         GameObject faker = Instantiate<GameObject>(
-            Resources.Load<GameObject>("prefabs/faker"),
+            Resources.Load<GameObject>("prefabs/BlueSuitFree01"),
             Vector3.zero, Quaternion.identity);
         faker.name = "faker";
         Debug.Log("load faker ...  \n");
