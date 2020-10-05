@@ -4,5 +4,10 @@ using UnityEngine;
 
 public interface IUserAction
 {
-    void GameOver();
+    void Reset();
+    void PriestBoarding();
+    void DevilBoarding();
+    void PriestGoAshore();
+    void DevilGoAshore();
+    void BoatGo();
 }
