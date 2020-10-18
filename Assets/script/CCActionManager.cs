@@ -35,6 +35,7 @@ public class CCActionManager : SSActionManager, ISSActionCallback
         this.actions.Clear();
         this.waitingAdd.Clear();
         this.waitingDelete.Clear();
+        this.sceneController.buttonActive = true;
     }
 
     #region ISSActionCallback implementation
