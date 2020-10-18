@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class FirstController : MonoBehaviour, ISceneController, IUserAction
 {
+    public CCActionManager actionManager;
+    public bool buttonActive;
+
     private Stack<GameObject> PriestStackA = new Stack<GameObject>();
     private Stack<GameObject> DevilsStackA = new Stack<GameObject>();
 
@@ -38,6 +41,8 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
         boarding_num = 0;
         curr_boat = A;
         status = UNDEFINE;
+        this.buttonActive = true;
+        this.actionManager = new CCActionManager();
     }
 
     public void LoadResources()
@@ -86,13 +91,14 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
 
     public void GameOver()
     {
-
+        Reset();
     }
 
     public void Reset()
     {
+        actionManager.ClearAction();
         //revover priest 
-        while(PriestStackBoat.Count != 0)
+        while (PriestStackBoat.Count != 0)
         {
             GameObject priest = PriestStackBoat.Pop();
             priest.transform.position = new Vector3(10, 0, (float)((PriestStackA.Count) * 1.2 + 2.5));
@@ -130,26 +136,40 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
         Debug.Log("Reset\n");
     }
 
+    private void moveAction(GameObject gameobject, Vector3 target)
+    {
+        CCMoveToAction moveToTarget = CCMoveToAction.GetSSAction(target, 3);
+        actionManager.RunAction(gameobject, moveToTarget);
+    }
+
     public void PriestBoarding()
     {
+        if (!buttonActive)
+        {
+            return;
+        }
         Stack<GameObject> PriestStack = curr_boat == A ? PriestStackA : PriestStackB;
         if(boarding_num < 2 && PriestStack.Count != 0)
         {
             GameObject priest = PriestStack.Pop();
-            if(boarding_num == 0)
+            Vector3 target;
+            if (boarding_num == 0)
             {
-                priest.transform.position = boat.transform.position + (new Vector3(-2, 0, 0));
+                target = boat.transform.position + (new Vector3(-2, 0, 0));
+                moveAction(priest, target);
             }
             else
             {
                 //priest.transform.position = boat.transform.position;
                 if(PriestStackBoat.Count != 0)
                 {
-                    priest.transform.position = PriestStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    target = PriestStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    moveAction(priest, target);
                 }
                 else
                 {
-                    priest.transform.position = DevilsStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    target = DevilsStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    moveAction(priest, target);
                 }
             }
             PriestStackBoat.Push(priest);
@@ -161,24 +181,32 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
 
     public void DevilBoarding()
     {
+        if (!buttonActive)
+        {
+            return;
+        }
         Stack<GameObject> DevilsStack = curr_boat == A ? DevilsStackA : DevilsStackB;
+        Vector3 target;
         if (boarding_num < 2 && DevilsStack.Count != 0)
         {
             GameObject devil = DevilsStack.Pop();
             if (boarding_num == 0)
             {
-                devil.transform.position = boat.transform.position + (new Vector3(-2, 0, 0));
+                target = boat.transform.position + (new Vector3(-2, 0, 0));
+                moveAction(devil, target);
             }
             else
             {
                 //devil.transform.position = boat.transform.position;
                 if (PriestStackBoat.Count != 0)
                 {
-                    devil.transform.position = PriestStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    target = PriestStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    moveAction(devil, target);
                 }
                 else
                 {
-                    devil.transform.position = DevilsStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    target = DevilsStackBoat.Peek().transform.position == boat.transform.position ? boat.transform.position + (new Vector3(-2, 0, 0)) : boat.transform.position;
+                    moveAction(devil, target);
                 }
             }
             DevilsStackBoat.Push(devil);
@@ -189,11 +217,16 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
     }
     public void PriestGoAshore()
     {
+        if (!buttonActive)
+        {
+            return;
+        }
         Stack<GameObject> PriestStack = curr_boat == A ? PriestStackA : PriestStackB;
         if(boarding_num > 0 && PriestStackBoat.Count != 0)
         {
             GameObject priest = PriestStackBoat.Pop();
-            priest.transform.position = curr_boat == A ? new Vector3(10, 0, (float)((PriestStack.Count) * 1.2 + 2.5)) : new Vector3(-23, 0, (float)((PriestStack.Count) * 1.2 + 2.5));
+            Vector3 target = curr_boat == A ? new Vector3(10, 0, (float)((PriestStack.Count) * 1.2 + 2.5)) : new Vector3(-23, 0, (float)((PriestStack.Count) * 1.2 + 2.5));
+            moveAction(priest, target);
             PriestStack.Push(priest);
             boarding_num--;
             Debug.Log("Priest go ashore\n");
@@ -201,11 +234,16 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
     }
     public void DevilGoAshore()
     {
+        if (!buttonActive)
+        {
+            return;
+        }
         Stack<GameObject> DevilsStack = curr_boat == A ? DevilsStackA : DevilsStackB;
         if (boarding_num > 0 && DevilsStackBoat.Count != 0)
         {
             GameObject devil = DevilsStackBoat.Pop();
-            devil.transform.position = curr_boat == A ? new Vector3(10, 0, (float)(DevilsStack.Count * 1.5 - 3)) : new Vector3(-23, 0, (float)(DevilsStack.Count * 1.5 - 3));
+            Vector3 target = curr_boat == A ? new Vector3(10, 0, (float)(DevilsStack.Count * 1.5 - 3)) : new Vector3(-23, 0, (float)(DevilsStack.Count * 1.5 - 3));
+            moveAction(devil, target);
             DevilsStack.Push(devil);
             boarding_num--;
             Debug.Log("Devil go ashore\n");
@@ -226,11 +264,16 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
    
     public void BoatGo()
     {
-        
+        if (!buttonActive)
+        {
+            return;
+        }
         if(boarding_num >= 1)
         {
+            Vector3 target;
             Vector3 direction = curr_boat == A ? new Vector3(-23, 0, 0) : new Vector3(23, 0, 0);
-            boat.transform.position += direction;
+            target = boat.transform.position + direction;
+            moveAction(boat, target);
             List<GameObject> tmp = new List<GameObject>();
             while(PriestStackBoat.Count != 0)
             {
@@ -238,7 +281,8 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
             }
             for (int i = 0; i < tmp.Count; i++)
             {
-                tmp[i].transform.position += direction;
+                target = tmp[i].transform.position + direction;
+                moveAction(tmp[i], target);
                 PriestStackBoat.Push(tmp[i]);
             }
 
@@ -249,7 +293,8 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
             }
             for (int i = 0; i < tmp.Count; i++)
             {
-                tmp[i].transform.position += direction;
+                target = tmp[i].transform.position + direction;
+                moveAction(tmp[i], target);
                 DevilsStackBoat.Push(tmp[i]);
             }
 
