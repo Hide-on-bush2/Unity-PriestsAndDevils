@@ -8,28 +8,30 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
 {
     public CCActionManager actionManager;
     public bool buttonActive;
+    public SSReferee referee;
 
-    private Stack<GameObject> PriestStackA = new Stack<GameObject>();
-    private Stack<GameObject> DevilsStackA = new Stack<GameObject>();
+    public Stack<GameObject> PriestStackA = new Stack<GameObject>();
+    public Stack<GameObject> DevilsStackA = new Stack<GameObject>();
 
-    private Stack<GameObject> PriestStackB = new Stack<GameObject>();
-    private Stack<GameObject> DevilsStackB = new Stack<GameObject>();
+    public Stack<GameObject> PriestStackB = new Stack<GameObject>();
+    public Stack<GameObject> DevilsStackB = new Stack<GameObject>();
 
-    private Stack<GameObject> PriestStackBoat = new Stack<GameObject>();
-    private Stack<GameObject> DevilsStackBoat = new Stack<GameObject>();
+    public Stack<GameObject> PriestStackBoat = new Stack<GameObject>();
+    public Stack<GameObject> DevilsStackBoat = new Stack<GameObject>();
 
     private int boarding_num;
     private GameObject boat;
     private GameObject river;
 
-    private const int A = 1;
-    private const int B = 2;
-    private const int WIN = 3;
-    private const int UNDEFINE = 4;
+    public int A = 1;
+    public int B = 2;
+    public int WIN = 3;
+    public int UNDEFINE = 4;
+    public int LOSS = 5;
 
-    private int curr_boat;
+    public int curr_boat;
 
-    private int status;
+    public int status;
 
     private string textFieldString = "Game has started";
     void Awake()
@@ -43,6 +45,8 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
         status = UNDEFINE;
         this.buttonActive = true;
         this.actionManager = new CCActionManager();
+        this.referee = new SSReferee();
+        this.referee.Start();
     }
 
     public void LoadResources()
@@ -131,7 +135,7 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
 
         boarding_num = 0;
         curr_boat = A;
-        textFieldString = "";
+        //textFieldString = "";
         status = UNDEFINE;
         Debug.Log("Reset\n");
     }
@@ -250,17 +254,17 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
         }
     }
 
-    private bool IsSafe()
-    {
-        if(curr_boat == A)
-        {
-            return (PriestStackB.Count >= DevilsStackB.Count || PriestStackB.Count == 0) && ((PriestStackA.Count + PriestStackBoat.Count >= DevilsStackA.Count + DevilsStackBoat.Count) || (PriestStackA.Count + PriestStackBoat.Count == 0));
-        }
-        else
-        {
-            return (PriestStackA.Count >= DevilsStackA.Count || PriestStackA.Count == 0) && ((PriestStackB.Count + PriestStackBoat.Count >= DevilsStackB.Count + DevilsStackBoat.Count) || (PriestStackB.Count + PriestStackBoat.Count == 0));
-        }
-    }
+    //private bool IsSafe()
+    //{
+    //    if(curr_boat == A)
+    //    {
+    //        return (PriestStackB.Count >= DevilsStackB.Count || PriestStackB.Count == 0) && ((PriestStackA.Count + PriestStackBoat.Count >= DevilsStackA.Count + DevilsStackBoat.Count) || (PriestStackA.Count + PriestStackBoat.Count == 0));
+    //    }
+    //    else
+    //    {
+    //        return (PriestStackA.Count >= DevilsStackA.Count || PriestStackA.Count == 0) && ((PriestStackB.Count + PriestStackBoat.Count >= DevilsStackB.Count + DevilsStackBoat.Count) || (PriestStackB.Count + PriestStackBoat.Count == 0));
+    //    }
+    //}
    
     public void BoatGo()
     {
@@ -299,12 +303,12 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
             }
 
             curr_boat = curr_boat == A ? B : A;
-            if (!IsSafe())
-            {
-                Debug.Log("Some Priests killed by Devils\n");
-                textFieldString = "Some Priests killed by Devils";
-                GameOver();
-            }
+            //if (!IsSafe())
+            //{
+            //    Debug.Log("Some Priests killed by Devils\n");
+            //    textFieldString = "Some Priests killed by Devils";
+            //    GameOver();
+            //}
 
             /*if(PriestStackB.Count == 3 && DevilsStackB.Count == 3)
             {
@@ -315,13 +319,28 @@ public class FirstController : MonoBehaviour, ISceneController, IUserAction
         }
     }
 
+    
+
     public void Update()
     {
-        if (status == UNDEFINE && PriestStackB.Count == 3 && DevilsStackB.Count == 3)
+        //if (status == UNDEFINE && PriestStackB.Count == 3 && DevilsStackB.Count == 3)
+        //{
+        //    Debug.Log("You win\n");
+        //    textFieldString = "You win";
+        //    status = WIN;
+        //    GameOver();
+        //}
+        referee.Update();
+        if(status == WIN)
         {
             Debug.Log("You win\n");
             textFieldString = "You win";
-            status = WIN;
+            
+        }
+        else if(status == LOSS)
+        {
+            Debug.Log("You loss\n");
+            textFieldString = "You loss";
             GameOver();
         }
     }
